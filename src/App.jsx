@@ -1,11 +1,27 @@
 import { useEffect, useState } from 'react';
-import { Card, Tabs, Tag, Descriptions, Empty, Spin, Pagination } from 'antd';
+import { Card, Tabs, Tag, Descriptions, Empty, Spin, Pagination, Button, Modal } from 'antd';
 import { UserOutlined, TeamOutlined, CalendarOutlined, BookOutlined } from '@ant-design/icons';
+import TeacherRegistrationForm from './add/addTeacher.jsx';
+import AddTeacherPosition from './add/addTeacherPosition.jsx';
 
 function App() {
     const [teachers, setTeachers] = useState([]);
     const [teacherPositions, setTeacherPositions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isTeacherFormModalVisible, setIsTeacherFormModalVisible] = useState(false); 
+    const [isPositionModalVisible, setIsPositionModalVisible] = useState(false);    
+
+    const showAddTeacherFormModal = () => {
+        setIsTeacherFormModalVisible(true);
+    };
+    const showAddPositionModal = () => {
+        setIsPositionModalVisible(true);
+    };
+    const handleCancel = () => {
+        setIsTeacherFormModalVisible(false); 
+        setIsPositionModalVisible(false);  
+    };
+
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -49,8 +65,7 @@ function App() {
         fetchTeachers();
         fetchTeacherPositions();
     }, []);
-    console.log(teacherPositions);
-    
+
     const handlePageChange = (page, pageSize) => {
         fetchTeachers(page, pageSize);
     };
@@ -76,7 +91,9 @@ function App() {
                             <h3 className="text-lg font-semibold text-gray-800">
                                 Mã GV: {teacher.code}
                             </h3>
-
+                            <h3 className="text-lg font-semibold text-gray-800">
+                                Tên GV: {teacher.userId?.name}
+                            </h3>
                         </div>
                     </div>
 
@@ -195,7 +212,28 @@ function App() {
                 </span>
             ),
             children: (
-                <div>
+                <>
+                    <div>
+                        <Button
+                            type='primary'
+                            onClick={showAddTeacherFormModal} 
+                            className="flex items-center gap-2 px-2"
+                        >
+                            <TeamOutlined />
+                            <span>Thêm Giáo Viên</span>
+                        </Button>
+
+                        <Modal
+                            title="Tạo Thông Tin Giáo Viên"
+                            open={isTeacherFormModalVisible}
+                            onCancel={handleCancel}
+                            footer={null}
+                            width={700}
+                            destroyOnClose={true}
+                        >
+                            <TeacherRegistrationForm />
+                        </Modal>
+                    </div>
                     {loading ? (
                         <div className="flex justify-center items-center py-20">
                             <Spin size="large" />
@@ -222,7 +260,7 @@ function App() {
                     ) : (
                         <Empty description="Không có dữ liệu giáo viên" />
                     )}
-                </div>
+                </>
             )
         },
         {
@@ -234,19 +272,47 @@ function App() {
                 </span>
             ),
             children: (
-                <div>
+                <>
+                    <div>
+                        <Button type='primary'
+                            onClick={showAddPositionModal}
+                            className="flex items-center gap-2 px-2"
+                        >
+                            <TeamOutlined />
+                            <span>Chức Vụ</span>
+                        </Button>
+                        <Modal
+                            title="Tạo Chức Vụ Giáo Viên"
+                            open={isPositionModalVisible}
+                            onCancel={handleCancel}
+                            footer={null}
+                            width={700}
+                            height={700}
+                            destroyOnClose={true}
+                        >
+
+                            <AddTeacherPosition
+                            />
+                        </Modal>
+                    </div>
                     {teacherPositions.length > 0 ? (
+
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
                             {teacherPositions.map(position => (
                                 <PositionCard key={position._id} position={position} />
                             ))}
                         </div>
+
                     ) : (
                         <Empty description="Không có dữ liệu chức vụ" />
                     )}
-                </div>
+                </>
             )
         }
+
+
+
     ];
 
     return (
